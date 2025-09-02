@@ -22,106 +22,83 @@ REVIEW_CHANNEL_LINK = "https://t.me/doc_of_service"
 # Главное меню
 def main_menu_markup():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("🚘 Международные права", "🧾 Проверка штрафов")
-    markup.add("📜 Первичное получение прав", "⚖️ Помощь при лишении")
-    markup.add("📢 Отзывы", "✅ Наши гарантии")
-    markup.add("💬 Все вопросы к юристу")
+    markup.add("Международные права", "Проверка штрафов")
+    markup.add("Первичное получение прав", "Помощь при лишении")
+    markup.add("Отзывы", "Наши гарантии")
+    markup.add("Все вопросы к юристу")
     return markup
 
 # =========================
 # Старт
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(
-        message.chat.id,
-        "👋 Добро пожаловать в *AutoLawBot* — юридическая помощь водителям!\n\n"
-        "📌 Мы оформляем документы только официально, без очередей.\n"
-        "⚖️ Наши юристы проверены и имеют большой опыт работы.",
-        parse_mode="Markdown",
-        reply_markup=main_menu_markup()
+    welcome_text = (
+        "AutoLawBot — делаем вас водителем быстро и без лишних хлопот!\n\n"
+        "Мы ценим ваше время и берём все заботы на себя.\n"
+        "Больше никаких очередей и бумажной волокиты — всё оформление документов проходит быстро, официально и законно.\n\n"
+        "У нас есть автошкола, где вы можете пройти обучение и стать полноценным водителем.\n"
+        "Водительские права всего за 10 дней — без стресса и лишней траты времени.\n\n"
+        "Что вы получаете:\n"
+        "- Подготовку и сопровождение от опытных специалистов.\n"
+        "- Официальные и правильно оформленные документы.\n"
+        "- Результат в максимально короткие сроки.\n\n"
+        "Всё прозрачно и безопасно — мы работаем только по закону.\n"
+        "С AutoLawBot вы не просто экономите время, а становитесь водителем быстро и уверенно.\n\n"
+        "Свяжитесь с нашим менеджером прямо сейчас — получите бесплатную консультацию и начните оформление уже сегодня!"
     )
+    bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu_markup())
 
 # =========================
 # Универсальная отправка заявок админам
 def send_to_admins(user, data, title):
     for admin_id in ADMINS:
-        bot.send_message(
-            admin_id,
-            f"💼 *{title}*\nОт @{user.username} (ID: {user.id}):\n\n{data}",
-            parse_mode="Markdown"
-        )
-    bot.send_message(user.id, "✅ Спасибо! Ваша заявка отправлена. Ожидайте ответа.")
+        bot.send_message(admin_id, f"{title}\nОт @{user.username} (ID: {user.id}):\n\n{data}")
+    bot.send_message(user.id, "Спасибо! Ваша заявка отправлена. Ожидайте ответа.")
 
 def handle_text_form(message, title):
     if message.content_type == 'text':
         send_to_admins(message.from_user, message.text, title)
     else:
-        bot.send_message(message.chat.id, "⚠️ Пожалуйста, отправьте данные текстом.")
+        bot.send_message(message.chat.id, "Пожалуйста, отправьте данные текстом.")
         bot.register_next_step_handler(message, lambda m: handle_text_form(m, title))
 
 # =========================
 # Международные права
-@bot.message_handler(func=lambda m: m.text == "🚘 Международные права")
+@bot.message_handler(func=lambda m: m.text == "Международные права")
 def intl_license(message):
     bot.send_message(
         message.chat.id,
-        "🌍 *Анкета для оформления международного ВУ:*\n"
-        "1. ФИО\n"
-        "2. Дата рождения\n"
-        "3. Гражданство\n"
-        "4. Адрес проживания\n"
-        "5. Фото паспорта и национального ВУ (если есть)",
-        parse_mode="Markdown"
+        "Анкета для оформления международного ВУ:\n1. ФИО\n2. Дата рождения\n3. Гражданство\n4. Адрес проживания\n5. Фото паспорта и национального ВУ (если есть)"
     )
     bot.register_next_step_handler(message, lambda m: handle_text_form(m, "Заявка на международные права"))
 
 # =========================
 # Проверка штрафов
-@bot.message_handler(func=lambda m: m.text == "🧾 Проверка штрафов")
+@bot.message_handler(func=lambda m: m.text == "Проверка штрафов")
 def fines_form(message):
     bot.send_message(
         message.chat.id,
-        "🧾 *Анкета для официальной проверки штрафов и ограничений:*\n"
-        "1. ФИО\n"
-        "2. Номер водительского удостоверения\n"
-        "3. Госномер автомобиля\n"
-        "4. Регион регистрации\n\n"
-        "📌 Все данные обрабатываются официально и проверяются юристами.",
-        parse_mode="Markdown"
+        "Анкета для официальной проверки штрафов и ограничений:\n1. ФИО\n2. Номер водительского удостоверения\n3. Госномер автомобиля\n4. Регион регистрации\n\nВсе данные обрабатываются официально и проверяются юристами."
     )
     bot.register_next_step_handler(message, lambda m: handle_text_form(m, "Проверка штрафов"))
 
 # =========================
 # Первичное получение прав
-@bot.message_handler(func=lambda m: m.text == "📜 Первичное получение прав")
+@bot.message_handler(func=lambda m: m.text == "Первичное получение прав")
 def primary_license(message):
     bot.send_message(
         message.chat.id,
-        "📜 *Анкета для первичного получения водительского удостоверения:*\n"
-        "1. ФИО\n"
-        "2. Дата рождения\n"
-        "3. Гражданство\n"
-        "4. Адрес проживания\n"
-        "5. Фото паспорта\n"
-        "📌 Все документы оформляются официально, с полным сопровождением юриста.",
-        parse_mode="Markdown"
+        "Анкета для первичного получения водительского удостоверения:\n1. ФИО\n2. Дата рождения\n3. Гражданство\n4. Адрес проживания\n5. Фото паспорта\nВсе документы оформляются официально, с полным сопровождением юриста."
     )
     bot.register_next_step_handler(message, lambda m: handle_text_form(m, "Первичное получение ВУ"))
 
 # =========================
 # Помощь при лишении
-@bot.message_handler(func=lambda m: m.text == "⚖️ Помощь при лишении")
+@bot.message_handler(func=lambda m: m.text == "Помощь при лишении")
 def help_license(message):
     bot.send_message(
         message.chat.id,
-        "⚖️ *Анкета для помощи при лишении ВУ:*\n"
-        "1. ФИО\n"
-        "2. Дата рождения\n"
-        "3. Причина лишения\n"
-        "4. Дата лишения\n"
-        "5. Были ли обжалования и решения суда?\n\n"
-        "📌 Все обращения оформляются официально, юрист проверяет все документы и действия.",
-        parse_mode="Markdown"
+        "Анкета для помощи при лишении ВУ:\n1. ФИО\n2. Дата рождения\n3. Причина лишения\n4. Дата лишения\n5. Были ли обжалования и решения суда?\n\nВсе обращения оформляются официально, юрист проверяет все документы и действия."
     )
     bot.register_next_step_handler(message, lambda m: handle_text_form(m, "Помощь при лишении ВУ"))
 
@@ -134,42 +111,35 @@ def handle_media(message):
             bot.send_photo(admin_id, message.photo[-1].file_id, caption=f"Фото от @{message.from_user.username}")
         elif message.content_type == 'document':
             bot.send_document(admin_id, message.document.file_id, caption=f"Документ от @{message.from_user.username}")
-    bot.send_message(message.chat.id, "✅ Фото/документ получены. Ожидайте ответа.")
+    bot.send_message(message.chat.id, "Фото/документ получены. Ожидайте ответа.")
 
 # =========================
 # Отзывы и гарантии
-@bot.message_handler(func=lambda m: m.text == "📢 Отзывы")
+@bot.message_handler(func=lambda m: m.text == "Отзывы")
 def show_reviews(message):
-    bot.send_message(message.chat.id, f"🗣 Ознакомьтесь с отзывами клиентов:\n👉 {REVIEW_CHANNEL_LINK}")
+    bot.send_message(message.chat.id, f"Ознакомьтесь с отзывами клиентов:\n{REVIEW_CHANNEL_LINK}")
 
-@bot.message_handler(func=lambda m: m.text == "✅ Наши гарантии")
+@bot.message_handler(func=lambda m: m.text == "Наши гарантии")
 def show_guarantees(message):
     bot.send_message(
         message.chat.id,
-        "✅ *Наши гарантии:*\n"
-        "- Работаем официально и законно.\n"
-        "- Полное сопровождение каждого клиента.\n"
-        "- Проверенные юристы с опытом.\n"
-        "- Прозрачность и безопасность всех операций.\n"
-        "- Все детали можно уточнить у консультанта или в отзывах.",
-        parse_mode="Markdown"
+        "Наши гарантии:\n- Работаем официально и законно.\n- Полное сопровождение каждого клиента.\n- Проверенные юристы с опытом.\n- Прозрачность и безопасность всех операций.\n- Все детали можно уточнить у консультанта или в отзывах."
     )
 
 # =========================
 # Контакт с юристом
-@bot.message_handler(func=lambda m: m.text == "💬 Все вопросы к юристу")
+@bot.message_handler(func=lambda m: m.text == "Все вопросы к юристу")
 def contact_lawyer(message):
     bot.send_message(
         message.chat.id,
-        f"👨‍⚖️ Свяжитесь напрямую с юристом:\n{CONSULTANT_USERNAME}\n\n"
-        "📌 Он ответит на любые вопросы и подскажет по вашей ситуации."
+        f"Свяжитесь напрямую с юристом:\n{CONSULTANT_USERNAME}\nОн ответит на любые вопросы и подскажет по вашей ситуации."
     )
 
 # =========================
 # Фолбэк
 @bot.message_handler(content_types=["text"])
 def fallback(message):
-    bot.send_message(message.chat.id, "⚠️ Пожалуйста, выберите раздел с клавиатуры.")
+    bot.send_message(message.chat.id, "Пожалуйста, выберите раздел с клавиатуры.")
 
 # =========================
 # Webhook для Railway
